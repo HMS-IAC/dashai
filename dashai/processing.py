@@ -128,3 +128,74 @@ def data_cleanup(path, print_lines=False):
 
 
 
+class Sharpness:
+    image: np.ndarray | None = None
+
+    # def __init__(self, image: np.ndarray) -> None:
+    #     if not isinstance(image, np.ndarray):
+    #         raise TypeError("Input must be Numpy array")
+        
+    #     self.image = image
+
+    def set_image(self, image: np.ndarray) -> None:
+        if not isinstance(image, np.ndarray):
+            raise TypeError("Input must be Numpy array")
+        
+        self.image = image
+
+
+    def variance_of_laplacian(self):
+        """
+        Computes the variance of the Laplacian of the image.
+        """
+        laplacian = cv.Laplacian(self.image, cv.CV_64F)
+        variance = laplacian.var()
+        return variance
+
+    def tenengrad(self):
+        """
+        Computes the Tenengrad focus measure.
+        """
+        # Convert to 64-bit float for precision
+        image_float = self.image.astype(np.float64)
+        # Sobel filters
+        gx = cv.Sobel(image_float, cv.CV_64F, 1, 0, ksize=3)
+        gy = cv.Sobel(image_float, cv.CV_64F, 0, 1, ksize=3)
+        gradient_magnitude = np.sqrt(gx**2 + gy**2)
+        tenengrad_value = np.mean(gradient_magnitude)
+        return tenengrad_value
+
+    def brenners_gradient(self):
+        """
+        Computes Brenner's gradient focus measure.
+        """
+        shifted_image = np.roll(self.image, -2, axis=0)
+        diff = (self.image - shifted_image) ** 2
+        brenner_value = np.sum(diff)
+        return brenner_value
+    
+    def fft_sharpness(self):
+        
+        # Convert to float32 for precision
+        img_float = np.float32(self.image)
+
+        # Step 2: Apply Fourier Transform
+        f = np.fft.fft2(img_float)
+
+        # Step 3: Shift the zero-frequency component to the center
+        fshift = np.fft.fftshift(f)
+
+        # Compute the magnitude spectrum
+        magnitude_spectrum = 20 * np.log(np.abs(fshift) + 1)  # Added 1 to avoid log(0)
+
+        return np.mean(magnitude_spectrum)
+    
+    def extract_all_features(self):
+        return {
+            'laplacian' : self.variance_of_laplacian(),
+            'tenengrad' : self.tenengrad(),
+            'brenners_gradient' : self.brenners_gradient(),
+            'fourier_magnitude' : self.fft_sharpness()
+        }
+    
+

@@ -4,3 +4,4 @@ pandas
 tifffile
 jupyterlab
 notebook
+opencv-python
