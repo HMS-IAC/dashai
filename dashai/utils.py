@@ -1,6 +1,10 @@
 import os
+import csv
 from tqdm import tqdm
+import string
+import pandas as pd
 from typing import Optional
+import matplotlib.pyplot as plt
 
 def remove_thumb_and_rename_files(old_path: str, new_path: str = None, print_lines: Optional[bool] = False) -> None:
     """
@@ -214,3 +218,83 @@ def custom_image_loader(image_path, image_labels):
         images.append(image)
         labels.append(image_labels)
     return images, labels
+
+
+def _get_index(row, site_multiple):
+    index=[]
+    for l in list(string.ascii_uppercase[:row]):
+        for _ in range(site_multiple):
+            index.append(l)
+    return index
+
+def _get_columns(col, site_multiple):
+    columns=[f'w{i:02}' for i in range(1,col+1) for j in range(1,site_multiple+1)]
+    return columns
+
+def create_plate(well_count, site_row, site_col):
+    if well_count == 96:
+        row = 8
+        col = 12
+
+    total_row = row*site_row
+    total_col = col*site_col
+
+    plate = np.zeros((total_row, total_col))
+
+    return plate
+
+def _get_row_col(file_name, site_row, site_col):
+    p = file_name.split("_")[1][0]
+    w = int(file_name.split("_")[1][1:])
+    s = file_name.split("_")[2][1:]
+
+    return (p, w, s, ((string.ascii_uppercase.index(p)*site_row) + (int(s)-1)//site_row), (((int(w)-1)*site_col) + (int(s)-1)%site_row))
+
+def add_axis(plate, well_count, site_row, site_col, savefig=False, fig_name=None):
+    if well_count == 96:
+        row = 8
+        col = 12
+    
+    column = _get_columns(col, site_col)
+    index = _get_index(row, site_row)
+
+    tab_df = pd.DataFrame(plate, index=index, columns=column)
+    # tab_df.to_csv(f'{path}/nuclei_masks/cell_count.csv')
+    
+    
+    plt.figure(figsize=(len(column)//2,len(index)//2))
+    plt.imshow(plate, cmap='hot')
+    plt.xticks(range(0,len(column)), column)
+    plt.yticks(range(0,len(index)), index)
+    if savefig and fig_name is not None:
+        plt.savefig(f'{fig_name}.png', dpi=300)
+
+def write_image_info_to_csv(image_info, folder_path, csv_filename):
+    """
+    Writes the image_info dictionary to a CSV file.
+
+    Parameters:
+    - image_info (dict): Dictionary containing image information.
+    - folder_path (str): Path to the folder where the CSV file will be created.
+    """
+
+    # Define the default CSV filename
+    # csv_filename = 'image_info.csv'
+    csv_path = os.path.join(folder_path, csv_filename)
+
+    # Check if the file exists
+    # if os.path.isfile(csv_path):
+    #     # # If it exists, append date and time to the filename
+    #     # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    #     # csv_filename = f'image_info_{timestamp}.csv'
+    #     # csv_path = os.path.join(folder_path, csv_filename)
+
+    with open(csv_path, mode='a', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=image_info.keys())
+        
+        # Write the header if the file is newly created
+        if os.path.getsize(csv_path) == 0:
+            writer.writeheader()
+
+        # Write the image_info dictionary rows
+        writer.writerow(image_info)
