@@ -19,9 +19,16 @@ from dashai.utils import check_directory_structure, remove_thumb_and_rename_file
 #####################################################################################
 
 # Cleanup directory
-input_directory = "../_RAW_DATA/Comparison of Different Magnifications Nov 18 2024/20xYoungOldMixed/2/2/2024-11-20/19944/TimePoint_1"
+input_directory = "_RAW_DATA/Comparison of Different Magnifications Nov 18 2024/40xSPFYoungOldMixed/40xSPFYoungOldMixed/1/2024-11-21/19945/TimePoint_1"
 
-output_directory = "../_CLEANED_DATA/magnification/20x/2024-11-20/plate_2"
+output_directory = "_CLEANED_DATA/magnification/40xSPFYoungOldMixed/2024-11-21/plate_1"
+
+remove_thumb_and_rename_files(old_path=input_directory, new_path=output_directory)
+
+# Cleanup directory
+input_directory = "_RAW_DATA/Comparison of Different Magnifications Nov 18 2024/40xSPFYoungOldMixed/40xSPFYoungOldMixed/2/2024-11-21/19946/TimePoint_1"
+
+output_directory = "_CLEANED_DATA/magnification/40xSPFYoungOldMixed/2024-11-21/plate_2"
 
 remove_thumb_and_rename_files(old_path=input_directory, new_path=output_directory)
 

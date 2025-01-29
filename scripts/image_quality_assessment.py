@@ -19,10 +19,17 @@ import string
 import pandas as pd
 
 # user defined path for input data
-PATH = "_CLEANED_DATA/magnification/20x/2024-11-20"
+PATH = "_CLEANED_DATA/magnification"
 
 # check image features
-folders = os.listdir(f'{PATH}')
+# folders = os.listdir(f'{PATH}')
+# folders = [folder for folder in folders if folder not in ["10xPAYoungOldMixed", "20xYoungOldMixed"]]
+folders = ["20xMixedLowandHighPassage/2024-12-03/plate_1",
+           "20xMixedLowandHighPassage/2024-12-03/plate_2",
+           "40xSPF-lowMixedHighMixed/2024-11-22/plate_1",
+           "40xSPF-lowMixedHighMixed/2024-11-23/plate_1",
+           "40xSPF-lowMixedHighMixed/2024-11-23/plate_2",
+           "40xSPFYoungOldMixed/2024-11-21/plate_1"]
 for folder in folders:
     print(f'Processing: {folder}')
     files = os.listdir(f'{PATH}/{folder}')
