@@ -19,7 +19,7 @@ import string
 import pandas as pd
 
 # user defined path for input data
-PATH = "_CLEANED_DATA/magnification/10x/2024-11-20"
+PATH = "_CLEANED_DATA/magnification/20x/2024-11-20"
 
 # check image features
 folders = os.listdir(f'{PATH}')
@@ -37,10 +37,14 @@ for folder in folders:
             'wavelength': int(file.split("_")[3].split('.')[0][1:])
             # 'image_dimension'
         }
-        image = tifffile.imread(f'{PATH}/{folder}/{file}')
-        image_features = ExtractImageFeatures()
-        image_features.set_image(image)
-        features = image_features.extract_all_features()
+        try:
+            image = tifffile.imread(f'{PATH}/{folder}/{file}')
+            image_features = ExtractImageFeatures()
+            image_features.set_image(image)
+            features = image_features.extract_all_features()
+        except:
+            print(f'Error with {file}')
+
 
         write_image_info_to_csv(image_info | features, folder_path=PATH, csv_filename=f'{folder}.csv')
 
